@@ -11,6 +11,8 @@ install:
 services:
   - docker
 
+script:
+
 after_success:
   - docker --version
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
