@@ -4,4 +4,5 @@ RUN pip install pipenv
 COPY . /app
 WORKDIR /app
 RUN pipenv install
+EXPOSE 8000
 CMD ["pipenv", "run", "gunicorn", "app:app"]
