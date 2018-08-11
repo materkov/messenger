@@ -1,5 +1,6 @@
 from . import message
 
+
 class Conversation:
     def __init__(self, id, title, user_ids, last_msg: message.Message):
         self.id = id

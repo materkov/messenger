@@ -1,0 +1,18 @@
+language: python
+sudo: required
+
+python:
+  - "3.6"
+
+install:
+  - pip install pipenv
+  - pipenv install
+
+services:
+  - docker
+
+after_success:
+  - docker --version
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - docker build . -t materkov/messenger:$TRAVIS_COMMIT
+  - docker push materkov/messenger:$TRAVIS_COMMIT
