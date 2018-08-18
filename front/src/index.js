@@ -50,9 +50,30 @@ class Messenger extends React.Component {
     }
 
     async handleNewConversation(title) {
-        await Api.newConversation(this.state.currentConversationId, title);
+        const conversationId = await Api.newConversation(title);
+        console.log(conversationId);
+        const fakeConversation = {
+            "id": conversationId,
+            "title": title,
+            "users": [
+                {
+                    "id": 163,
+                    "name": "name-436306619"
+                }
+            ],
+            "last_message": {
+                "id": Math.random()*1000000000,
+                "type": "conversation_created",
+                "body": "",
+                "user": {
+                    "id": 163,
+                    "name": "name-436306619"
+                }
+            }
+        };
 
-        const newState = Object.assign({}, this.state, {newConversationActive: false});
+        let newState = Object.assign({}, this.state, {newConversationActive: false});
+        newState.conversations.unshift(fakeConversation);
         this.setState(newState);
     }
 

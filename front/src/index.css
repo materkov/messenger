@@ -25,6 +25,7 @@ body {
 
     border: 0 solid #eeeeee;
     border-right-width: 1px;
+    overflow: scroll;
 }
 
 .conversation {

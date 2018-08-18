@@ -14,10 +14,11 @@ def hello():
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Content-Type', 'application/json')
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE')
+    response.headers.set('Content-Type', 'application/json')
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.set('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE')
+    response.headers.set('Access-Control-Max-Age', 60 * 60 * 24 * 7)  # 7 days
     return response
 
 

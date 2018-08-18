@@ -39,7 +39,8 @@ class Api {
 
     async newConversation(title) {
         try {
-            return await this.instance.post('/conversations', {title: title, user_ids: [163]});
+            const data = await this.instance.post('/conversations', {title: title, user_ids: [163]});
+            return data.data.id;
         } catch (error) {
             console.error(error);
             return null;
