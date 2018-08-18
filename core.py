@@ -1,6 +1,7 @@
 import storage
 import jwt
 import bcrypt
+import models
 
 JWT_SECRET = 'gipXZ$CB4!xcoHKa%LHZBpcy#joz'
 
@@ -25,7 +26,8 @@ def create_conversation(user_ids, creator_user_id, title):
 
 
 def write_conversation(conversation_id, user_id, body):
-    storage.messages.add_message(conversation_id, user_id, body)
+    msg = models.Message(0, user_id, models.MessageType.NORMAL, body)
+    storage.messages.add(conversation_id, msg)
 
 
 def get_messages(conversation_id: int, after: int, limit: int):
@@ -69,4 +71,14 @@ def register(login, name, password):
 
 
 def invite_conversation(conversation_id, inviter_id, invitee_id):
-    storage.messages.invite_conversation(conversation_id, inviter_id, invitee_id)
+    msg = models.Message(0, inviter_id, models.MessageType.USER_INVITED, invited_user_id=invitee_id)
+    msg_id = storage.messages.add(conversation_id, msg)
+
+    storage.messages.invite_conversation(conversation_id, invitee_id, msg_id)
+
+
+def entitle_conversation(conversation_id, user_id, title):
+    msg = models.Message(0, user_id, models.MessageType.TITLE_CHANGED, new_title=title)
+    storage.messages.add(conversation_id, msg)
+
+    storage.messages.entitle_conversation(conversation_id, title)

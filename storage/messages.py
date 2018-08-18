@@ -67,11 +67,13 @@ def create_conversation(title, user_ids, creator_user_id):
     return conv_id
 
 
-def add_message(conversation_id, user_id, body, msg_type=models.MessageType.NORMAL):
+def add(conversation_id, msg: models.Message):
     cursor = mysql.conn.cursor()
 
-    query = "INSERT INTO messenger.messages(conversation_id, user_id, body, type) VALUES (%s, %s, %s, %s)"
-    cursor.execute(query, (conversation_id, user_id, body, msg_type.value))
+    user_id, type, body = serialize_message(msg)
+
+    query = "INSERT INTO messenger.messages(conversation_id, user_id, type, body) VALUES (%s, %s, %s, %s)"
+    cursor.execute(query, (conversation_id, user_id, type, body))
     msg_id = cursor.lastrowid
 
     query = "UPDATE messenger.conversations_users SET last_msg_id = %s WHERE conversation_id = %s"
@@ -91,43 +93,52 @@ def get_conversation_messages(conversation_id: int, after: int, limit: int):
     limit = 20
 
     cursor = mysql.conn.cursor()
-    query = "SELECT id, user_id, body, type FROM messenger.messages WHERE conversation_id = %d %s ORDER BY id DESC LIMIT %d" % \
+    query = "SELECT id, user_id, type, body FROM messenger.messages WHERE conversation_id = %d %s ORDER BY id DESC LIMIT %d" % \
             (conversation_id, after_clause, limit)
     cursor.execute(query)
     rows = cursor.fetchall()
     cursor.close()
 
     result = []
-    for id, user_id, body, type in rows:
-        result.append(models.Message(id, user_id, body, type))
+    for id, user_id, type, body in rows:
+        result.append(deserialize_message(id, user_id, type, body))
 
     return result
 
 
-def unserialize_message(id, user_id, type, body):
+def deserialize_message(id, user_id, type, body):
     if type == models.MessageType.NORMAL.value:
         return models.Message(id, user_id, models.MessageType.NORMAL, body=body)
     elif type == models.MessageType.CONVERSATION_CREATED.value:
         return models.Message(id, user_id, models.MessageType.CONVERSATION_CREATED)
     elif type == models.MessageType.USER_INVITED.value:
-        return models.Message(id, user_id, models.MessageType.USER_INVITED, invited_user_id=0)
+        invited_user_id = int(body) if body.isdigit() else 0
+        return models.Message(id, user_id, models.MessageType.USER_INVITED, invited_user_id=invited_user_id)
+    elif type == models.MessageType.TITLE_CHANGED.value:
+        return models.Message(id, user_id, models.MessageType.TITLE_CHANGED, new_title=body)
     else:
         return models.Message(id, user_id, models.MessageType.NORMAL)
 
 
-def serialize_message(msg):
+def serialize_message(msg: models.Message):
     body = ''
-    if msg is models.NormalMessage:
+    if msg.type == models.MessageType.NORMAL:
         body = msg.body
-    elif msg is models.UserInvitedMessage:
+    elif msg.type == models.MessageType.USER_INVITED:
         body = str(msg.invited_user_id)
+    elif msg.type == models.MessageType.TITLE_CHANGED:
+        body = msg.new_title
 
     return msg.user_id, msg.type.value, body
 
 
-def invite_conversation(conversation_id, inviter_id, invitee_id):
-    msg_id = add_message(conversation_id, inviter_id, '', models.MessageType.USER_INVITED)
-
+def invite_conversation(conversation_id, invited_user_id, last_msg_id):
     cursor = mysql.conn.cursor()
     query = "INSERT INTO messenger.conversations_users(conversation_id, user_id, last_msg_id) VALUES (%s, %s, %s)"
-    cursor.execute(query, (conversation_id, invitee_id, msg_id))
+    cursor.execute(query, (conversation_id, invited_user_id, last_msg_id))
+
+
+def entitle_conversation(conversation_id, title):
+    cursor = mysql.conn.cursor()
+    query = "UPDATE messenger.conversations SET title = %s WHERE id = %s"
+    cursor.execute(query, (title, conversation_id))

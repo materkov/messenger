@@ -89,7 +89,10 @@ def test_registration():
     user2_token, user2_id = register_user('user2')
     r = requests.post(HOST + "/conversations/" + str(conv_id) + "/invite",
                       headers={'Authorization': 'Bearer ' + auth_token}, json={'user_id': user2_id})
-    print(r.text)
+    assert r.status_code == 204
+
+    r = requests.post(HOST + "/conversations/" + str(conv_id) + "/entitle",
+                      headers={'Authorization': 'Bearer ' + user2_token}, json={'title': 'new title!!'})
     assert r.status_code == 204
 
     # get conversation messages

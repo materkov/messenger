@@ -60,6 +60,14 @@ def r_conversations_invite(conversation_id):
     return helpers.empty_response()
 
 
+@app.route('/conversations/<conversation_id>/entitle', methods=['POST'])
+@auth.check_auth
+def r_conversations_entitle(conversation_id):
+    body = request.get_json()
+    core.entitle_conversation(conversation_id, g.auth_user_id, body['title'])
+    return helpers.empty_response()
+
+
 @app.route('/login', methods=['POST'])
 def r_login():
     body = request.get_json()
