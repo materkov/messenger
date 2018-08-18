@@ -3,14 +3,16 @@ import newrelic.agent
 newrelic.agent.initialize()
 from flask import Flask
 import os
+import os.path
 
-with open('.env') as f:
-    lines = f.readlines()
-    for line in lines:
-        k, v = line.split('=', 2)
-        k = k.strip()
-        v = v.strip()
-        os.environ[k] = v
+if os.path.exists('.env'):
+    with open('.env') as f:
+        lines = f.readlines()
+        for line in lines:
+            k, v = line.split('=', 2)
+            k = k.strip()
+            v = v.strip()
+            os.environ[k] = v
 
 app = Flask(__name__)
 
