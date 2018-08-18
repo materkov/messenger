@@ -3,15 +3,11 @@ import json
 
 
 def json_response(resp):
-    resp = flask.Response(json.dumps(resp, indent=4))
-    resp.headers['Content-Type'] = 'application/json'
-    return resp
+    return flask.Response(json.dumps(resp, indent=4))
 
 
 def empty_response():
-    resp = flask.Response(status=204)
-    resp.headers['Content-Type'] = 'application/json'
-    return resp
+    return flask.Response(status=204)
 
 
 def error_response(error, details='', status=400):
@@ -19,7 +15,6 @@ def error_response(error, details='', status=400):
     if details:
         resp['error']['details'] = details
     resp = flask.Response(json.dumps(resp, indent=4), status=status)
-    resp.headers['Content-Type'] = 'application/json'
     return resp
 
 

@@ -78,6 +78,7 @@ def test_registration():
 
     # get conversations list
     r = requests.get(HOST + "/conversations", headers={'Authorization': 'Bearer ' + auth_token})
+    print(r.text)
     assert r.status_code == 200
 
     # get conversation messages
@@ -99,4 +100,5 @@ def test_registration():
     r = requests.get(HOST + "/conversations/" + str(conv_id) + "/messages",
                      headers={'Authorization': 'Bearer ' + auth_token})
     print(r.text)
+    print(auth_token)
     assert r.status_code == 200

@@ -12,6 +12,15 @@ def hello():
     return 'Hello, World!'
 
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Content-Type', 'application/json')
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,PATCH,DELETE')
+    return response
+
+
 def conversations_get():
     conversations, users = core.get_conversations_for_user(g.auth_user_id)
     conversations = [api_models.convert_conversation(c, users) for c in conversations]

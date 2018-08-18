@@ -36,7 +36,7 @@ def get_for_user(user_id):
     cursor.execute(query)
     rows4 = cursor.fetchall()
 
-    messages = {id: models.Message(id, user_id, body, type) for id, user_id, body, type in rows4}
+    messages = {id: deserialize_message(id, user_id, type, body) for id, user_id, body, type in rows4}
 
     conversations = {}
     for id, title in rows2:
