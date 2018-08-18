@@ -19,3 +19,5 @@ after_success:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - docker build . -t materkov/messenger:$TRAVIS_COMMIT
   - docker push materkov/messenger:$TRAVIS_COMMIT
+  - docker build front -t materkov/messenger-front:$TRAVIS_COMMIT
+  - docker push materkov/messenger-front:$TRAVIS_COMMIT
