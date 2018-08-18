@@ -17,7 +17,6 @@ def get_for_user(user_id):
     consersation_last_msg_ids = {conv_id: msg_id for conv_id, msg_id in rows1}
     msg_ids_str = ','.join(str(msg_id) for _, msg_id in rows1)
 
-
     # Select conversations data
     query = "SELECT id, title FROM messenger.conversations WHERE id IN (" + conversation_ids_str + ")"
     cursor.execute(query)
@@ -68,11 +67,11 @@ def create_conversation(title, user_ids, creator_user_id):
     return conv_id
 
 
-def add_message(conversation_id, user_id, body):
+def add_message(conversation_id, user_id, body, msg_type=models.MessageType.NORMAL):
     cursor = mysql.conn.cursor()
 
     query = "INSERT INTO messenger.messages(conversation_id, user_id, body, type) VALUES (%s, %s, %s, %s)"
-    cursor.execute(query, (conversation_id, user_id, body, models.MessageType.NORMAL.value))
+    cursor.execute(query, (conversation_id, user_id, body, msg_type.value))
     msg_id = cursor.lastrowid
 
     query = "UPDATE messenger.conversations_users SET last_msg_id = %s WHERE conversation_id = %s"
@@ -92,7 +91,8 @@ def get_conversation_messages(conversation_id: int, after: int, limit: int):
     limit = 20
 
     cursor = mysql.conn.cursor()
-    query = "SELECT id, user_id, body, type FROM messenger.messages WHERE conversation_id = %d %s ORDER BY id DESC LIMIT %d" % (conversation_id, after_clause, limit)
+    query = "SELECT id, user_id, body, type FROM messenger.messages WHERE conversation_id = %d %s ORDER BY id DESC LIMIT %d" % \
+            (conversation_id, after_clause, limit)
     cursor.execute(query)
     rows = cursor.fetchall()
     cursor.close()
@@ -102,3 +102,32 @@ def get_conversation_messages(conversation_id: int, after: int, limit: int):
         result.append(models.Message(id, user_id, body, type))
 
     return result
+
+
+def unserialize_message(id, user_id, type, body):
+    if type == models.MessageType.NORMAL.value:
+        return models.Message(id, user_id, models.MessageType.NORMAL, body=body)
+    elif type == models.MessageType.CONVERSATION_CREATED.value:
+        return models.Message(id, user_id, models.MessageType.CONVERSATION_CREATED)
+    elif type == models.MessageType.USER_INVITED.value:
+        return models.Message(id, user_id, models.MessageType.USER_INVITED, invited_user_id=0)
+    else:
+        return models.Message(id, user_id, models.MessageType.NORMAL)
+
+
+def serialize_message(msg):
+    body = ''
+    if msg is models.NormalMessage:
+        body = msg.body
+    elif msg is models.UserInvitedMessage:
+        body = str(msg.invited_user_id)
+
+    return msg.user_id, msg.type.value, body
+
+
+def invite_conversation(conversation_id, inviter_id, invitee_id):
+    msg_id = add_message(conversation_id, inviter_id, '', models.MessageType.USER_INVITED)
+
+    cursor = mysql.conn.cursor()
+    query = "INSERT INTO messenger.conversations_users(conversation_id, user_id, last_msg_id) VALUES (%s, %s, %s)"
+    cursor.execute(query, (conversation_id, invitee_id, msg_id))

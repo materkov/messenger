@@ -5,5 +5,5 @@ from . import user
 
 Conversation = conversation.Conversation
 User = user.User
-Message = message.Message
 MessageType = message.MessageType
+Message = message.Message

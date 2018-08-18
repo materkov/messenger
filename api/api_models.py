@@ -18,16 +18,22 @@ def convert_user(user: models.User):
 
 
 def convert_message(message: models.Message, user):
-    if message.type == models.MessageType.NORMAL:
-        msg_type = 'normal'
-    elif message.type == models.MessageType.CONVERSATION_CREATED:
-        msg_type = 'conversation_created'
-    else:
-        msg_type = ''
-
-    return {
+    result = {
         'id': message.id,
-        'type': msg_type,
         'body': message.body,
         'user': convert_user(user),
     }
+
+    if message.type == models.MessageType.NORMAL:
+        result['type'] = 'normal'
+        result['body'] = message.body
+    elif message.type == models.MessageType.CONVERSATION_CREATED:
+        result['type'] = 'conversation_created'
+    elif message.type == models.MessageType.USER_INVITED:
+        result['type'] = 'user_invited'
+    else:
+        result['type'] = ''
+
+
+    return message
+

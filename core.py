@@ -66,3 +66,7 @@ def register(login, name, password):
     password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     user_id = storage.users.create_user(login, name, password_hash)
     return generate_auth_token(user_id), storage.users.get_users([user_id])[user_id]
+
+
+def invite_conversation(conversation_id, inviter_id, invitee_id):
+    storage.messages.invite_conversation(conversation_id, inviter_id, invitee_id)

@@ -52,6 +52,14 @@ def r_conversations_messages(conversation_id):
     return helpers.json_response(result)
 
 
+@app.route('/conversations/<conversation_id>/invite', methods=['POST'])
+@auth.check_auth
+def r_conversations_invite(conversation_id):
+    body = request.get_json()
+    core.invite_conversation(conversation_id, g.auth_user_id, body['user_id'])
+    return helpers.empty_response()
+
+
 @app.route('/login', methods=['POST'])
 def r_login():
     body = request.get_json()

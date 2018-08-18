@@ -11,6 +11,7 @@ bcrypt = "*"
 pyjwt = "*"
 gunicorn = "*"
 newrelic = "*"
+pytest = "*"
 
 [dev-packages]
 
