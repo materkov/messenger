@@ -3,6 +3,9 @@ from models import User
 
 
 def get_users(ids):
+    if len(ids) == 0:
+        return {}
+
     cursor = mysql.conn.cursor()
 
     query = "SELECT id, name FROM messenger.users WHERE id IN (" + ','.join([str(id) for id in ids]) + ")"

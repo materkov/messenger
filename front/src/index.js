@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import Api from './api.js';
+import Login from './login.js';
 
 class Messenger extends React.Component {
     constructor(props) {
@@ -11,14 +12,9 @@ class Messenger extends React.Component {
             messages: null,
             currentConversationId: 0,
             newConversationActive: false,
+            authToken: '',
+            user: null,
         };
-    }
-
-    async componentDidMount() {
-        const conversations = await Api.getConversations();
-
-        const newState = Object.assign({}, this.state, {conversations: conversations.data});
-        this.setState(newState);
     }
 
     async handleSelectConversation(id) {
@@ -36,10 +32,7 @@ class Messenger extends React.Component {
             id: Math.random() * 2000000000,
             type: 'normal',
             body: body,
-            user: {
-                id: 0,
-                name: 'me'
-            }
+            user: this.state.user,
         };
 
         const newState = Object.assign({}, this.state);
@@ -55,20 +48,12 @@ class Messenger extends React.Component {
         const fakeConversation = {
             "id": conversationId,
             "title": title,
-            "users": [
-                {
-                    "id": 163,
-                    "name": "name-436306619"
-                }
-            ],
+            "users": [this.state.user],
             "last_message": {
-                "id": Math.random()*1000000000,
+                "id": Math.random() * 1000000000,
                 "type": "conversation_created",
                 "body": "",
-                "user": {
-                    "id": 163,
-                    "name": "name-436306619"
-                }
+                "user": this.state.user,
             }
         };
 
@@ -77,8 +62,18 @@ class Messenger extends React.Component {
         this.setState(newState);
     }
 
-    activateNewConversation() {
-        const newState = Object.assign({}, this.state, {newConversationActive: true});
+    toggleNewConversation() {
+        const newState = Object.assign({}, this.state, {newConversationActive: !this.state.newConversationActive});
+        this.setState(newState);
+    }
+
+    async handleLogin(authToken, user) {
+        this.setState({authToken: authToken, user: user});
+        Api.setToken(authToken);
+
+        const conversations = await Api.getConversations();
+
+        const newState = Object.assign({}, this.state, {conversations: conversations.data});
         this.setState(newState);
     }
 
@@ -88,12 +83,16 @@ class Messenger extends React.Component {
                 <ConversationsList conversations={this.state.conversations}
                                    handleSelectConversation={(id) => this.handleSelectConversation(id)}
                                    currentConversationId={this.state.currentConversationId}
-                                   activateNewConversation={() => this.activateNewConversation()}
+                                   toggleNewConversation={() => this.toggleNewConversation()}
                 />
                 <MessagesList messages={this.state.messages}/>
                 <InputMessage handleSend={(body) => this.handleSend(body)} messages={this.state.messages}/>
                 <NewConversationDialog handleNewConversation={(title) => this.handleNewConversation(title)}
                                        active={this.state.newConversationActive}
+                                       toggleNewConversation={() => this.toggleNewConversation()}
+                />
+                <Login handleOnLogin={(authToken, user) => this.handleLogin(authToken, user)}
+                       isAuthorized={this.state.authToken}
                 />
             </div>
         )
@@ -120,7 +119,7 @@ class ConversationsList extends React.Component {
         return (
             <ul className="conversations-list">
                 <li className="conversations-top-panel">
-                    <span onClick={this.props.activateNewConversation}>Создать беседу</span>
+                    <span onClick={this.props.toggleNewConversation}>Создать беседу</span>
                 </li>
 
                 {conversations}
@@ -137,7 +136,10 @@ class Conversation extends React.Component {
         return (
             <li className={"conversation " + isActive} onClick={() => this.props.handleSelectConversation(c.id)}>
                 <div className="title">{c.title}</div>
-                <span className="last-message">{c.last_message.user.name}: {c.last_message.body}</span>
+                <div className="last-message">
+                    <span className="last-message-user">{c.last_message.user.name}:</span>
+                    <span className="last-message-body"> {c.last_message.body}</span>
+                </div>
             </li>
         )
     }
@@ -158,15 +160,21 @@ class MessagesList extends Component {
 
     render() {
         let messages = '';
+        let zeroData = '';
+
         if (this.props.messages != null) {
             messages = this.props.messages.map((message) =>
                 <Message key={message.id.toString()}
                          message={message}
                 />
             );
+        } else {
+            zeroData = (<div className="zero-data"> ← Выберите диалог </div>);
         }
+
         return (
             <ul className="messages-list">
+                {zeroData}
                 {messages}
                 <div ref={(el) => {
                     this.messagesEnd = el;
@@ -266,6 +274,7 @@ class NewConversationDialog extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
+        this.handleContainerClick = this.handleContainerClick.bind(this);
     }
 
     handleChange(event) {
@@ -281,12 +290,17 @@ class NewConversationDialog extends Component {
         this.setState({title: ''});
     }
 
+    handleContainerClick(event) {
+        event.stopPropagation();
+    }
+
     render() {
         const hiddenClass = this.props.active ? '' : 'hidden';
 
         return (
-            <div className={"new-conversation-container " + hiddenClass}>
-                <div className="new-conversation">
+            <div className={"new-conversation-container " + hiddenClass}
+                 onClick={() => this.props.toggleNewConversation()}>
+                <div className="new-conversation" onClick={this.handleContainerClick}>
                     Введите имя беседы:<br/>
                     <input type="text" value={this.state.title} onChange={this.handleChange}/><br/>
                     <input type="button" value="Создать" onClick={this.handleClick}/>

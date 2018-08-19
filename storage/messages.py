@@ -12,6 +12,10 @@ def get_for_user(user_id):
     query = "SELECT conversation_id, last_msg_id FROM messenger.conversations_users WHERE user_id = %s ORDER BY last_msg_id DESC"
     cursor.execute(query, (user_id,))
     rows1 = cursor.fetchall()
+
+    if len(rows1) == 0:
+        return []
+
     conversation_ids = [conv_id for conv_id, _ in rows1]
     conversation_ids_str = ','.join([str(conv_id) for conv_id, _ in rows1])
     consersation_last_msg_ids = {conv_id: msg_id for conv_id, msg_id in rows1}

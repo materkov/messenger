@@ -21,6 +21,8 @@ def get_conversations_for_user(user_id):
 
 
 def create_conversation(user_ids, creator_user_id, title):
+    user_ids.append(creator_user_id)
+    user_ids = list(set(user_ids))
     conv_id = storage.messages.create_conversation(title, user_ids, creator_user_id)
     return conv_id
 

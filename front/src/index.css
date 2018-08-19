@@ -53,13 +53,27 @@ body {
     font-weight: bold;
 }
 
+.last-message {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 289px;
+}
+
+.last-message-user {
+    color: #888888;
+}
+
+.last-message-body {
+}
+
 .messages-input {
     position: absolute;
     left: 300px;
     bottom: 0;
     right: 0;
     height: 80px;
-    border: 0 solid #000000;
+    border: 0 solid #eeeeee;
     border-top-width: 1px;
     padding: 5px;
 }
@@ -84,9 +98,18 @@ textarea {
     left: 300px;
     top: 0;
     right: 0;
-    bottom: 81px;
+    bottom: 91px;
     overflow: scroll;
+    padding: 0 20px;
+    margin: 0;
     overscroll-behavior-y: auto;
+}
+
+.messages-list .zero-data {
+    color: #777777;
+    text-align: center;
+    margin-top: 40px;
+    font-size: 12px;
 }
 
 .service-message-user {
@@ -121,7 +144,7 @@ textarea {
     height: 100%;
     top: 0;
     position: absolute;
-    background-color: rgba(22,22,22,0.5);
+    background-color: rgba(22, 22, 22, 0.5);
 }
 
 .new-conversation-container.hidden {

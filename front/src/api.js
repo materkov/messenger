@@ -5,9 +5,16 @@ class Api {
         this.instance = axios.create({
             baseURL: 'http://localhost:5000',
             timeout: 15000,
-            headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNjMifQ.44pGOdE7_Wqvtk4uDt4BMo03U3wfWRSLqd_Yg9nQYKo'}
         });
 
+    }
+
+    setToken(token) {
+        this.instance = axios.create({
+            baseURL: 'http://localhost:5000',
+            timeout: 15000,
+            headers: {'Authorization': 'Bearer ' + token}
+        });
     }
 
     async getConversations() {
@@ -39,8 +46,28 @@ class Api {
 
     async newConversation(title) {
         try {
-            const data = await this.instance.post('/conversations', {title: title, user_ids: [163]});
+            const data = await this.instance.post('/conversations', {title: title, user_ids: []});
             return data.data.id;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    async login(login, password) {
+        try {
+            const data = await this.instance.post('/login', {login: login, password: password});
+            return data.data;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    async register(login, name, password) {
+        try {
+            const data = await this.instance.post('/register', {login: login, name: name, password: password});
+            return data.data;
         } catch (error) {
             console.error(error);
             return null;
