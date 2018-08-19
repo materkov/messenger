@@ -2,19 +2,16 @@ import axios from 'axios';
 
 class Api {
     constructor() {
-        this.instance = axios.create({
-            baseURL: 'http://localhost:5000',
+        this.clientParams = {
+            baseURL: 'https://api.msg.mmaks.me',
             timeout: 15000,
-        });
-
+        };
+        this.instance = axios.create(this.clientParams);
     }
 
     setToken(token) {
-        this.instance = axios.create({
-            baseURL: 'http://localhost:5000',
-            timeout: 15000,
-            headers: {'Authorization': 'Bearer ' + token}
-        });
+        this.clientParams.headers = {'Authorization': 'Bearer ' + token};
+        this.instance = axios.create(this.clientParams);
     }
 
     async getConversations() {
