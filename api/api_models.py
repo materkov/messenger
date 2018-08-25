@@ -23,7 +23,11 @@ def convert_message(message: models.Message, user):
         'type': 'normal',
         'body': '',
         'user': convert_user(user),
+        'date': message.date.isoformat() + 'Z',
     }
+
+    if message.updated != message.created:
+        result['updated'] = message.updated.isoformat() + 'Z'
 
     if message.type == models.MessageType.NORMAL:
         result['body'] = message.body

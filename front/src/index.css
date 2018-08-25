@@ -123,7 +123,11 @@ textarea {
 .message {
     list-style-type: none;
     margin: 0;
-    padding: 5px 0;
+    padding: 8px 0;
+}
+
+.message-top-panel {
+
 }
 
 .service-message {
@@ -133,6 +137,12 @@ textarea {
 
 .username {
     font-weight: bold;
+}
+
+.date {
+    color: #aaaaaa;
+    font-size: 12px;
+    margin-left: 10px;
 }
 
 .message-input {

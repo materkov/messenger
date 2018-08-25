@@ -33,6 +33,7 @@ class Messenger extends React.Component {
             type: 'normal',
             body: body,
             user: this.state.user,
+            date: (new Date()).toISOString(),
         };
 
         const newState = Object.assign({}, this.state);
@@ -200,7 +201,10 @@ function Message(props) {
 function NormalMessage(props) {
     return (
         <li className="message">
-            <div className="username">{props.message.user.name}</div>
+            <div className="message-top-panel">
+                <span className="username">{props.message.user.name}</span>
+                <span className="date">{(new Date(props.message.date)).toLocaleString()}</span>
+            </div>
             {props.message.body}
         </li>
     )

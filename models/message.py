@@ -1,5 +1,5 @@
 from enum import Enum
-
+import datetime
 
 class MessageType(Enum):
     NORMAL = 1
@@ -9,10 +9,12 @@ class MessageType(Enum):
 
 
 class Message:
-    def __init__(self, id, user_id, type: MessageType, body='', invited_user_id=0, new_title=''):
+    def __init__(self, id, user_id, type: MessageType, date: datetime.datetime, updated: datetime.datetime, body='', invited_user_id=0, new_title=''):
         self.id = id
         self.user_id = user_id
         self.type = type
+        self.date = date
+        self.updated = updated
 
         # NORMAL
         self.body = body

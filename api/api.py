@@ -78,6 +78,14 @@ def r_conversations_entitle(conversation_id):
     return helpers.empty_response()
 
 
+@app.route('/conversations/<conversation_id>/messages/<message_id>', methods=['PATCH'])
+@auth.check_auth
+def r_message_edit(conversation_id, message_id):
+    body = request.get_json()
+    core.edit_message(message_id, body['body'])
+    return helpers.empty_response()
+
+
 @app.route('/login', methods=['POST'])
 def r_login():
     body = request.get_json()

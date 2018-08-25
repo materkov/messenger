@@ -2,6 +2,7 @@ import storage
 import jwt
 import bcrypt
 import models
+import datetime
 
 JWT_SECRET = 'gipXZ$CB4!xcoHKa%LHZBpcy#joz'
 
@@ -28,7 +29,7 @@ def create_conversation(user_ids, creator_user_id, title):
 
 
 def write_conversation(conversation_id, user_id, body):
-    msg = models.Message(0, user_id, models.MessageType.NORMAL, body)
+    msg = models.Message(0, user_id, models.MessageType.NORMAL, datetime.datetime.now(), datetime.datetime.now(), body=body)
     storage.messages.add(conversation_id, msg)
 
 
@@ -73,14 +74,18 @@ def register(login, name, password):
 
 
 def invite_conversation(conversation_id, inviter_id, invitee_id):
-    msg = models.Message(0, inviter_id, models.MessageType.USER_INVITED, invited_user_id=invitee_id)
+    msg = models.Message(0, inviter_id, models.MessageType.USER_INVITED, datetime.datetime.now(), datetime.datetime.now(), invited_user_id=invitee_id)
     msg_id = storage.messages.add(conversation_id, msg)
 
     storage.messages.invite_conversation(conversation_id, invitee_id, msg_id)
 
 
 def entitle_conversation(conversation_id, user_id, title):
-    msg = models.Message(0, user_id, models.MessageType.TITLE_CHANGED, new_title=title)
+    msg = models.Message(0, user_id, models.MessageType.TITLE_CHANGED, datetime.datetime.now(), datetime.datetime.now(), new_title=title)
     storage.messages.add(conversation_id, msg)
 
     storage.messages.entitle_conversation(conversation_id, title)
+
+
+def edit_message(message_id, new_body):
+    storage.messages.edit_message(message_id, new_body)
