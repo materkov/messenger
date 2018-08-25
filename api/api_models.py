@@ -26,7 +26,7 @@ def convert_message(message: models.Message, user):
         'date': message.date.isoformat() + 'Z',
     }
 
-    if message.updated != message.created:
+    if message.updated != message.date:
         result['updated'] = message.updated.isoformat() + 'Z'
 
     if message.type == models.MessageType.NORMAL:
