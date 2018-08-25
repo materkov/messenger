@@ -3,8 +3,15 @@ import jwt
 import bcrypt
 import models
 import datetime
+import redis
+import os
 
 JWT_SECRET = 'gipXZ$CB4!xcoHKa%LHZBpcy#joz'
+
+redis_host = os.getenv('REDIS_HOST', '127.0.0.1')
+redis_port = int(os.getenv('REDIS_PORT', '6379'))
+
+r = redis.StrictRedis(host=redis_host, port=redis_port)
 
 
 def get_conversations_for_user(user_id):
@@ -89,3 +96,8 @@ def entitle_conversation(conversation_id, user_id, title):
 
 def edit_message(message_id, new_body):
     storage.messages.edit_message(message_id, new_body)
+
+
+def send_rts_message(user_ids, message):
+    user_ids = user_ids.join(',')
+    r.rpush('queue', f'{user_ids}:{message}')

@@ -14,6 +14,11 @@ services:
     volumes:
       - db-data:/var/lib/mysql
 
+  redis:
+    image: redis:4.0.11
+    ports:
+      - 6379:6379
+
 #  app:
 #    image: messenger:1
 #    environment:
