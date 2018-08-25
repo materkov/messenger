@@ -12,6 +12,7 @@ pyjwt = "*"
 gunicorn = "*"
 newrelic = "*"
 pytest = "*"
+websockets = "*"
 
 [dev-packages]
 
